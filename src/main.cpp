@@ -1,31 +1,43 @@
-
 #include "HX711.h"
- 
 #include <Arduino.h>
 
-// put function declarations here:
-int myFunction(int, int);
+// 1. HX711 circuit wiring
+#define LOADCELL_DOUT_PIN 6
+#define LOADCELL_SCK_PIN 5
 
-const int ledPin = 15; // Pin number for the LED
+// 2. Adjustment settings
+//const long LOADCELL_OFFSET = 50682624;
+//const long LOADCELL_DIVIDER = 5895655;
 
+HX711 loadcell;
+ 
 void setup() {
+  // // 3. Initialize library
+  // loadcell.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
+  // loadcell.set_scale(LOADCELL_DIVIDER);
+  // loadcell.set_offset(LOADCELL_OFFSET);
 
-  // put your setup code here, to run once:
+  // // 4. Acquire reading
+  // Serial.print("Weight: ");
+  // Serial.println(loadcell.get_units(10), 2);
+
   Serial.begin(9600);
-  pinMode(ledPin, OUTPUT); // Set the LED pin as an output
+  Serial.println("HX711 Demo");
+  // Acquire reading without blocking
+  if (loadcell.wait_ready_timeout(1000)) {
+      long reading = loadcell.get_units(10);
+      Serial.print("Weight: ");
+      Serial.println(reading, 2);
+  } else {
+      Serial.println("HX711 not found.");
+  }
+ 
+  loadcell.tare(20);                // Fixa o peso como tara
+  Serial.println("Insira o item para Pesar"); 
 }
-
+ 
 void loop() {
-  int result = myFunction(2, 3);
-  Serial.println(result);
-  delay(1000);
-  digitalWrite(ledPin, HIGH); // Turn the LED on
-  delay(1000);
-  digitalWrite(ledPin, LOW); // Turn the LED on
-  // put your main code here, to run repeatedly:
-}
-
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+  Serial.print("Reading: ");
+  Serial.println(loadcell.get_value(10),0);
+  delay(100);
 }
