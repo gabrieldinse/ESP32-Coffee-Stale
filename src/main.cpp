@@ -1,3 +1,6 @@
+
+#include "HX711.h"
+ 
 #include <Arduino.h>
 
 // put function declarations here:
