@@ -27,7 +27,9 @@ void setup() {
 
   // Display testing
   lcd.begin();
+  delay(500);  // Wait for LCD initialization
   lcd.backlight();
+  delay(200);  // Wait for backlight to activate
 }
  
 void loop() {
