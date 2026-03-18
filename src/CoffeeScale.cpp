@@ -4,17 +4,59 @@
 #include "CoffeeScale.hpp"
 
 void CoffeeScale::initializeScale() {
+  currentState = State::Initializing; 
   Serial.println("HX711 Demo");
   loadcell.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);
   loadcell.set_scale(LOADCELL_DIVIDER);
   loadcell.tare(20);
-  Serial.println("Insert the item to be weighed"); 
+  pinMode(TARE_BUTTON_PIN, INPUT_PULLUP);
+  Serial.println("Insert the item to be weighed");
 }
 
 void CoffeeScale::runStateMachine() {
   Serial.print("Reading: ");
   Serial.println(loadcell.get_units(10), 0);
   delay(100);
+  previousState = currentState;
 }
 
+void CoffeeScale::updateStateMachine() {
+  // 1. Check if the tare button was pressed
+  currentWeight = getWeight();
+  if (isTareButtonPressed()) {
+    currentState = State::TareButtonPressed;
+  }
+
+  if (isJarOnTheScale()){
+    if(hasCoffee()) {
+      currentState = State::HasCoffee;
+    } else {
+      currentState = State::NoCoffee;
+    }
+  } else {
+    // TODO: We may create another state like WAITING_FOR_JAR
+    // If State = NoJar:
+      // If timer > 15 min, set state = CoffeeBrewing
+    // Else State = NoJar and Initialize Timer
+  }
+}
+
+bool CoffeeScale::isTareButtonPressed() {
+  if (digitalRead(TARE_BUTTON_PIN) == LOW) {
+    return true;
+  }
+  return false;
+}
+
+int CoffeeScale::getWeight() {
+  return loadcell.get_units(10);
+}
+
+bool CoffeeScale::isJarOnTheScale() {
+  return currentWeight > JAR_WEIGHT;
+}
+
+bool CoffeeScale::hasCoffee() {
+  return currentWeight > JAR_WEIGHT + MIN_COFFEE_LEVEL;
+}
 #endif // COFFEE_SCALE_HPP
