@@ -2,8 +2,8 @@
 #include <Arduino.h>
 
 // HX711 circuit wiring
-#define LOADCELL_DOUT_PIN 21  // D21 pin on board
-#define LOADCELL_SCK_PIN 22   // D22 pin on board
+#define LOADCELL_DOUT_PIN 16  // D21 pin on board
+#define LOADCELL_SCK_PIN 4   // D22 pin on board
 
 // 2. Adjustment settings
 // Coke: 380g grams
