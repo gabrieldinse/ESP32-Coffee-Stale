@@ -1,3 +1,9 @@
+#include "CoffeeScale.hpp" 
+
+CoffeeScale coffeeScale;
+
+LCD_I2C lcd(0x27, 16, 2);
+
 #include <Arduino.h>
 #include <WiFi.h>
 
@@ -18,14 +24,16 @@ const float LOADCELL_DIVIDER = static_cast<float>(152950) / 380;
 HX711 loadcell;
  
 void setup() {
-
   Serial.begin(9600);
-  Serial.println("HX711 Demo");
+  coffeeScale.initializeScale();
+  coffeeScale.initializeWebserver();
+  coffeeScale.initializeDisplay();
 
-  loadcell.begin(LOADCELL_DOUT_PIN, LOADCELL_SCK_PIN);  // ✅ REQUIRED !!!
-  loadcell.set_scale(LOADCELL_DIVIDER);
-  loadcell.tare(20);
-  Serial.println("Insert the item to be weighed"); 
+  // Display testing
+  lcd.begin();
+  delay(500);  // Wait for LCD initialization
+  lcd.backlight();
+  delay(200);  // Wait for backlight to activate
 
   // Wifi
   WiFi.mode(WIFI_STA);  // Station mode
@@ -48,8 +56,14 @@ void setup() {
 }
  
 void loop() {
-  Serial.print("Reading: ");
-  Serial.println(loadcell.get_units(10), 0);
+  coffeeScale.updateStateMachine();
+  coffeeScale.runStateMachine();
+  // LCD Display
+  lcd.clear();
+  lcd.print("Coffee Scale");
+  lcd.setCursor(0, 1);
+  lcd.print("Weight: ");
+  //lcd.print(reading, 0);
   delay(100);
 
   static uint64_t last = 0;
