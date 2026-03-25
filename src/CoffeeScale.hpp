@@ -12,6 +12,8 @@
 #define JAR_WEIGHT 100 // grams
 #define MIN_COFFEE_LEVEL 20 // grams
 
+#define FIFTEEN_MINUTES 15 * 60 * 1000
+
 // 2. Adjustment settings
 // Coke: 380g grams
 // Reading: ~152950
@@ -22,7 +24,7 @@ enum class State {
     None = 0,
     Initializing,
     TareButtonPressed,
-    NoJar,
+    WaitingForJar,
     CoffeeBrewing,
     NoCoffee,
     HasCoffee,
@@ -49,6 +51,7 @@ private:
     State currentState = State::None;
     State previousState = State::None;
     int currentWeight = 0;
+    unsigned long waitingForJarStartTime = 0;
 
     HX711 loadcell;
 };

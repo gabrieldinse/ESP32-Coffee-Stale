@@ -14,9 +14,22 @@ void CoffeeScale::initializeScale() {
 }
 
 void CoffeeScale::runStateMachine() {
-  Serial.print("Reading: ");
-  Serial.println(loadcell.get_units(10), 0);
-  delay(100);
+  switch (currentState) {
+    case State::None:
+      break;
+    case State::Initializing:
+      break;
+    case State::TareButtonPressed:
+      break;
+    case State::WaitingForJar:
+      break;
+    case State::CoffeeBrewing:
+      break;
+    case State::NoCoffee:
+      break;
+    case State::HasCoffee:
+      break;
+  }
   previousState = currentState;
 }
 
@@ -34,10 +47,14 @@ void CoffeeScale::updateStateMachine() {
       currentState = State::NoCoffee;
     }
   } else {
-    // TODO: We may create another state like WAITING_FOR_JAR
-    // If State = NoJar:
-      // If timer > 15 min, set state = CoffeeBrewing
-    // Else State = NoJar and Initialize Timer
+    if (currentState != State::CoffeeBrewing) {
+      if (currentState != State::WaitingForJar) {
+        currentState = State::WaitingForJar;
+        waitingForJarStartTime = millis();
+      } else if (millis() - waitingForJarStartTime > FIFTEEN_MINUTES) {
+        currentState = State::CoffeeBrewing;
+      }
+    }
   }
 }
 
