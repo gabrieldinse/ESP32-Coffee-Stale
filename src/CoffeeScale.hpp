@@ -2,6 +2,7 @@
 
 #include <Arduino.h>
 #include "HX711.h"
+#include "LCD_I2C.h"
 
 // HX711 circuit wiring
 #define LOADCELL_DOUT_PIN 16  // D21 pin on board
