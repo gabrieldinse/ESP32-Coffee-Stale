@@ -3,6 +3,16 @@
 
 #include "CoffeeScale.hpp"
 
+CoffeeScale::CoffeeScale(LCD_I2C& display) : display(display) {}
+
+void CoffeeScale::initializeDisplay() {
+  display.begin();
+  delay(500);
+  display.backlight();
+  delay(200);
+  Serial.println("Display initialized");
+}
+
 void CoffeeScale::initializeScale() {
   currentState = State::Initializing; 
   Serial.println("HX711 Demo");
@@ -13,21 +23,69 @@ void CoffeeScale::initializeScale() {
   Serial.println("Insert the item to be weighed");
 }
 
+void CoffeeScale::renderWeightField() {
+  if (hasDisplayedWeight && displayedWeight == currentWeight) {
+    return;
+  }
+
+  display.setCursor(8, 1);
+  String weightText = String(currentWeight) + "g";
+  while (weightText.length() < 8) {
+    weightText += " ";
+  }
+  display.print(weightText);
+
+  displayedWeight = currentWeight;
+  hasDisplayedWeight = true;
+}
+
 void CoffeeScale::runStateMachine() {
+  const bool stateChanged = currentState != previousState;
+
+  if (stateChanged) {
+    display.clear();
+  }
+
   switch (currentState) {
     case State::None:
       break;
     case State::Initializing:
+      if (stateChanged) {
+        display.print("Initializing...");
+      }
       break;
     case State::TareButtonPressed:
+      if (stateChanged) {
+        display.print("Taring scale...");
+      }
       break;
     case State::WaitingForJar:
+      if (stateChanged) {
+        display.print("Waiting for jar");
+      }
       break;
     case State::CoffeeBrewing:
+      if (stateChanged) {
+        display.print("Brewing...");
+      }
       break;
     case State::NoCoffee:
+      if (stateChanged) {
+        display.print("No coffee");
+        display.setCursor(0, 1);
+        display.print("Weight: ");
+        hasDisplayedWeight = false;
+      }
+      renderWeightField();
       break;
     case State::HasCoffee:
+      if (stateChanged) {
+        display.print("Coffee ready");
+        display.setCursor(0, 1);
+        display.print("Weight: ");
+        hasDisplayedWeight = false;
+      }
+      renderWeightField();
       break;
   }
   previousState = currentState;
@@ -36,6 +94,7 @@ void CoffeeScale::runStateMachine() {
 void CoffeeScale::updateStateMachine() {
   // 1. Check if the tare button was pressed
   currentWeight = getWeight();
+  Serial.println("currentWeight: " + String(currentWeight)  );
   if (isTareButtonPressed()) {
     currentState = State::TareButtonPressed;
   }

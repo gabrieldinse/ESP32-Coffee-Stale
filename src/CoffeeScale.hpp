@@ -13,7 +13,7 @@
 #define JAR_WEIGHT 100 // grams
 #define MIN_COFFEE_LEVEL 20 // grams
 
-#define FIFTEEN_MINUTES 15 * 60 * 1000
+#define FIFTEEN_MINUTES 1 * 60 * 1000
 
 // 2. Adjustment settings
 // Coke: 380g grams
@@ -33,13 +33,13 @@ enum class State {
 
 class CoffeeScale {
 public:
+    explicit CoffeeScale(LCD_I2C& display);
+
     void initializeScale();
     void initializeWebserver() {
         Serial.println("Webserver initialized");
     }
-    void initializeDisplay() {
-        Serial.println("Display initialized");
-    }
+    void initializeDisplay();
 
     void updateStateMachine();
     void runStateMachine();
@@ -52,7 +52,12 @@ private:
     State currentState = State::None;
     State previousState = State::None;
     int currentWeight = 0;
+    int displayedWeight = 0;
+    bool hasDisplayedWeight = false;
     unsigned long waitingForJarStartTime = 0;
 
+    LCD_I2C& display;
     HX711 loadcell;
+
+    void renderWeightField();
 };
